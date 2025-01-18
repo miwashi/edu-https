@@ -27,13 +27,18 @@ git commit -m "Initial commit"
 
 # Create certificates
 
-Common name is the domain name and in our case it is localhost!
+## Answer questions
 
 ```bash
 mkdir ./certs
 openssl req -nodes -new -x509 -keyout ./certs/server.key -out ./certs/server.cert -days 365
+```
+# OR
 
-# If you don't want to answer questions
+## No questions
+
+```bash
+mkdir ./certs
 openssl req \
   -x509 -nodes -days 365 \        # Make a self-signed cert (valid 1 year)
   -newkey rsa:2048 \              # Generate new 2048-bit RSA key
