@@ -1,5 +1,7 @@
 # edu-https
 
+## Instructions
+
 ```bash
 cd ~
 cd ws
@@ -25,9 +27,9 @@ git add .
 git commit -m "Initial commit"
 ```
 
-# Create certificates
+## Create certificates
 
-## Answer questions
+### Answer questions
 
 ```bash
 mkdir ./certs
@@ -35,7 +37,7 @@ openssl req -nodes -new -x509 -keyout ./certs/server.key -out ./certs/server.cer
 ```
 # OR
 
-## No questions
+### No questions
 
 ```bash
 mkdir ./certs
@@ -47,7 +49,7 @@ openssl req \
   -subj "/C=SE/ST=Stockholm/L=Stockholm/O=Jensen/OU=YH/CN=localhost/emailAddress=owner@example.com"
 ```
 
-## service.js <heredoc
+### service.js <heredoc
 
 ```js
 cat > ./src/service.js << 'EOF'
@@ -60,7 +62,7 @@ app.listen(PORT, () => {
 EOF
 ```
 
-## secure_service.js <heredoc
+### secure_service.js <heredoc
 
 ```js
 cat > ./src/secure_service.js << 'EOF'
@@ -80,7 +82,7 @@ https.createServer(tlsOptions, app).listen(PORT, () => {
 EOF
 ```
 
-## app.js <heredoc
+### app.js <heredoc
 
 ```js
 cat > ./src/app.js << 'EOF'
@@ -110,5 +112,3 @@ module.exports = app;
 
 EOF
 ```
-
-
