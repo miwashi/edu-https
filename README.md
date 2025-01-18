@@ -42,8 +42,8 @@ mkdir ./certs
 openssl req \
   -x509 -nodes -days 365 \
   -newkey rsa:2048 \
-  -keyout server.key \
-  -out server.cert \
+  -keyout ./certs/server.key \
+  -out ./certs/server.cert \
   -subj "/C=SE/ST=Stockholm/L=Stockholm/O=Jensen/OU=YH/CN=localhost/emailAddress=owner@example.com"
 ```
 
