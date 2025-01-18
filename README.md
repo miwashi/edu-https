@@ -63,7 +63,7 @@ EOF
 ## secure_service.js <heredoc
 
 ```js
-cat > ./src/service.js << 'EOF'
+cat > ./src/secure_service.js << 'EOF'
 const https = require('https');
 const fs = require('fs');
 const app = require('./app');
