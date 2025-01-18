@@ -21,9 +21,12 @@ git commit -m "Initial commit"
 ```
 
 # Create certificates
+
+Common name is the domain name and in our case it is localhost!
+
 ```bash
 mkdir ./certs
-openssl req -nodes -new -x509 -keyout server.key -out ./certs/server.cert -days 365
+openssl req -nodes -new -x509 -keyout ./certs/server.key -out ./certs/server.cert -days 365
 ```
 
 ## service.js <heredoc
@@ -33,17 +36,14 @@ cat > ./src/service.js << 'EOF'
 const https = require('https');
 const fs = require('fs');
 const app = require('./app');
+const PORT = = process.env.PORT || 443;
 
-const options = {
-    key: fs.readFileSync('./certs/server.key'), // Path to your private key
-    cert: fs.readFileSync('./certs/server.cert') // Path to your certificate
+const tlsOptions = {
+    key: fs.readFileSync('./certs/server.key'),
+    cert: fs.readFileSync('./certs/server.cert')
 };
 
-// Set the port for the server
-const PORT = 4433;
-
-// Create and start the HTTPS server
-https.createServer(options, app).listen(PORT, () => {
+https.createServer(tlsOptions, app).listen(PORT, () => {
     console.log(`HTTPS Server is running on https://localhost:${PORT}`);
 });
 EOF
@@ -52,24 +52,15 @@ EOF
 ## app.js <heredoc
 
 ```js
+cat > ./src/app.js << 'EOF'
 const express = require('express');
 const app = express();
-
-// Middleware for parsing JSON and handling basic requests
 app.use(express.json());
-
-// Define a simple route
 app.get('/', (req, res) => {
-    res.send('Hello, World!');
+    res.send('Hello, Secure World!');
 });
-
-// Additional routes can go here
-// Example: Another route
-app.get('/api', (req, res) => {
-    res.json({ message: 'Welcome to the API!' });
-});
-
 module.exports = app;
+EOF
 ```
 
 
