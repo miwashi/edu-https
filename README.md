@@ -36,7 +36,7 @@ cat > ./src/service.js << 'EOF'
 const https = require('https');
 const fs = require('fs');
 const app = require('./app');
-const PORT = = process.env.PORT || 443;
+const PORT = process.env.PORT || 443;
 
 const tlsOptions = {
     key: fs.readFileSync('./certs/server.key'),
