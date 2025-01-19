@@ -44,8 +44,9 @@ openssl verify -CAfile localhost.pem localhost.pem
 ```bash
 sudo tshark -i lo0 -f "port 80 or port 443"
 sudo tcpdump -i lo0 "port 80 or port 443"
-sudo tcpdump -i lo0 -s 0 -A "port 80 or port 443"
 
+sudo tcpdump -i lo0 -s 0 -A "port 80 or port 443"
+sudo tshark -i lo0 -f "port 443" -s 0 -x
 ```
 
 ### Testing post
