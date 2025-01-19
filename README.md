@@ -1,114 +1,56 @@
 # edu-https
+[s_client](https://docs.openssl.org/1.0.2/man1/s_client/)  
+[OpenSSL](https://docs.openssl.org/master/)
+[tshark](https://www.wireshark.org/docs/man-pages/tshark.html)
+[tcpdump](https://www.tcpdump.org)
+[Wireshark](https://www.wireshark.org)
 
 ## Instructions
 
 ```bash
-cd ~
-cd ws
-rm -rf https-test #Om den finns
-mkdir https-test
-cd https-test
-npm init -y
-mkdir src
-touch ./src/app.js
-touch ./src/service.js
-npm pkg set scripts.start="concurrently \"npm run server1\" \"npm run server2\""
-npm pkg set scripts.server1="node ./src/service.js"
-npm pkg set scripts.server2="node ./src/secure_service.js"
-npm pkg set scripts.server1:watch="node --watch ./src/service.js"
-npm pkg set scripts.server2:watch="node --watch ./src/secure_service.js"
-npm pkg set scripts.dev="concurrently \"npm run server1:watch\" \"npm run server2:watch\""
-npm pkg set scripts.test="jest"
-npm install express
-npm install --save-dev concurrently
-echo "node_modules" > .gitignore
-git init
-git add .
-git commit -m "Initial commit"
+openssl s_client -connect localhost:443
 ```
 
-## Create certificates
-
-### Answer questions
+## Get certificate from local host
 
 ```bash
-mkdir ./certs
-openssl req -nodes -new -x509 -keyout ./certs/server.key -out ./certs/server.cert -days 365
-```
-# OR
+echo | openssl s_client -connect localhost:443 -servername localhost 2>/dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > localhost.pem
 
-### No questions
+echo | openssl s_client -connect jensenyh.se:443  2>/dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > jensen.pem
+```
+
+## openssl
+
+### Inspect
 
 ```bash
-mkdir ./certs
-openssl req \
-  -x509 -nodes -days 365 \
-  -newkey rsa:2048 \
-  -keyout ./certs/server.key \
-  -out ./certs/server.cert \
-  -subj "/C=SE/ST=Stockholm/L=Stockholm/O=Jensen/OU=YH/CN=localhost/emailAddress=owner@example.com"
+openssl x509 -in localhost.pem -text -noout
 ```
 
-### service.js <heredoc
+### Get public key
 
-```js
-cat > ./src/service.js << 'EOF'
-const app = require('./app');
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log(`HTTPS Server is running on https://localhost:${PORT}`);
-});
-EOF
+```bash
+openssl x509 -in localhost.pem -pubkey -noout
 ```
 
-### secure_service.js <heredoc
+### Verify cert
 
-```js
-cat > ./src/secure_service.js << 'EOF'
-const https = require('https');
-const fs = require('fs');
-const app = require('./app');
-const PORT = process.env.SECURE_PORTT || 443;
-
-const tlsOptions = {
-    key: fs.readFileSync('./certs/server.key'),
-    cert: fs.readFileSync('./certs/server.cert')
-};
-
-https.createServer(tlsOptions, app).listen(PORT, () => {
-    console.log(`HTTPS Server is running on https://localhost:${PORT}`);
-});
-EOF
+```bash
+openssl verify -CAfile localhost.pem localhost.pem
 ```
 
-### app.js <heredoc
+### Monitoring
 
-```js
-cat > ./src/app.js << 'EOF'
-const express = require('express');
-const app = express();
-app.use(express.json());
-/*
-app.get('*', (req, res, next) => {
-    if (!req.secure) {
-        const securePort = process.env.SECURE_PORT || 443;
-        const host = req.hostname;
-        const url = `https://${host}:${securePort}${req.originalUrl}`;
-        console.log(`Redirecting to: ${url}`);
-        res.redirect(url);
-    }
-    next();
-});
-*/
-app.get('/', (req, res) => {
-    if (req.secure) {
-        res.send('Hello, Secure World!');
-    } else {
-        res.send('Hello, Insecure World!');
-    }
-});
-module.exports = app;
+```bash
+sudo tshark -i lo0 -f "port 80 or port 443"
+sudo tcpdump -i lo0 "port 80 or port 443"
+sudo tcpdump -i lo0 -s 0 -A "port 80 or port 443"
 
-EOF
+```
+
+### Testing post
+
+```bash
+curl -d "username=alice&password=secret123" -X POST http://localhost
+curl -d "username=alice&password=secret123" -X POST https://localhost
 ```
